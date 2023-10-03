@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     TextView no_music;
-    Button filterButton;
+    Button filterButton,likedM;
     EditText search_name;
     ArrayList<AudioModel> songsList = new ArrayList<>();
 
@@ -44,9 +45,12 @@ public class MainActivity extends AppCompatActivity {
 
         filterButton = findViewById(R.id.searching_button);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         Context context = this;
 
         Button filterButton = findViewById(R.id.searching_button);
+
+
 
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override

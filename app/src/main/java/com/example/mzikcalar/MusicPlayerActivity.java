@@ -1,14 +1,17 @@
 package com.example.mzikcalar;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -23,9 +26,10 @@ import java.util.Random;
 public class MusicPlayerActivity extends AppCompatActivity {
     TextView titleTv, currentTimeTv, totalTimeTv;
     SeekBar seekBar;
-    ImageView pausePlayImg, skipImg, prevImg,liked;
+    ImageView pausePlayImg, skipImg, prevImg;
     ArrayList<AudioModel> songsList;
-    Button shufle;
+    ArrayList<AudioModel> likedList = new ArrayList<>();
+    Button shufle,liked;
     AudioModel currentSong;
     MediaPlayer mediaPlayer = MyMediaPlayer.getInstance();
     boolean onShuffle = false;
@@ -44,12 +48,36 @@ public class MusicPlayerActivity extends AppCompatActivity {
         pausePlayImg = findViewById(R.id.pause_play);
         skipImg = findViewById(R.id.next);
         prevImg = findViewById(R.id.previous);
-
+        liked = findViewById(R.id.liked);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         shufle = findViewById(R.id.shufle);
 
         Context context = this;
+
+
+        liked.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (liked.getBackground().getConstantState() != null &&
+                        liked.getBackground().getConstantState().equals(
+                                ContextCompat.getDrawable(context, R.drawable.of_heart).getConstantState()))
+                {
+                    liked.setBackgroundResource(R.drawable.on_hearth);
+                }
+                else
+                {
+                    liked.setBackgroundResource(R.drawable.of_heart);
+                }
+
+
+            }
+        });
 
         shufle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,8 +93,6 @@ public class MusicPlayerActivity extends AppCompatActivity {
                 }
             }
         });
-
-
 
         titleTv.setSelected(true);
 
@@ -95,11 +121,25 @@ public class MusicPlayerActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if (mediaPlayer != null && b) {
-                    mediaPlayer.seekTo(i);
+
+                if (liked.getBackground().getConstantState() != null &&
+                        liked.getBackground().getConstantState().equals(
+                                ContextCompat.getDrawable(context, R.drawable.of_heart).getConstantState()))
+                {
+                    if (i == seekBar.getMax()) {
+                        nextSong(); // Bir sonraki şarkıya geç
+                    }
+                    if (mediaPlayer != null && b) {
+                        mediaPlayer.seekTo(i);
+                    }
+                }
+                else
+                {
+                    if (mediaPlayer != null && b) {
+                        mediaPlayer.seekTo(i);
+                    }
                 }
             }
-
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
 
@@ -142,6 +182,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
 
 
     public void nextSong() {
+        Context context = this;
         if (onShuffle) {
             int randomToken;
             do {
@@ -155,6 +196,7 @@ public class MusicPlayerActivity extends AppCompatActivity {
             else
                 MyMediaPlayer.currentIndex += 1;
         }
+
         mediaPlayer.reset();
         setResourcesWithMusic();
     }
@@ -183,7 +225,20 @@ public class MusicPlayerActivity extends AppCompatActivity {
             mediaPlayer.start();
         }
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
 
+        if (id == android.R.id.home) {
+            Intent intent = new Intent(this,MainActivity.class);
+            intent.putExtra("LISTNEW",likedList);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     public static String convertToMMSS(String duration) {
         Long millis = Long.parseLong(duration);
